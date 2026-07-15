@@ -1,7 +1,6 @@
 import sys
 import asyncio
 
-# 1. Windows Python 3.12 asyncio bug fix (Taaki WinError 10054 na aaye)
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -14,209 +13,211 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
-# 2. Page Configuration (Modern Layout)
 st.set_page_config(page_title="SafeMail AI", page_icon="🛡️", layout="wide")
 
-# --- CUSTOM CSS FOR REFRESHED BACKGROUND & THEME ---
+# --- CLEAN PREMIUM LIGHT UI (COMBINED TITLE CARD) ---
 st.markdown("""
     <style>
-    /* Cool Soft Gray-Blue Background for Premium Tech Product Vibe */
+    /* Main Background */
     .stApp {
-        background-color: #f1f5f9;
+        background-color: #E6EDF5 !important;
+        color: #111827 !important;
     }
-    /* Dark Premium Slate Blue for Main Title */
+    
+    /* Top Header Icons */
+    header[data-testid="stHeader"] svg {
+        fill: #0F172A !important;
+    }
+    header[data-testid="stHeader"] button {
+        color: #0F172A !important;
+    }
+    
+    /* Combined Header Card Design */
+    .header-card {
+        background-color: #FFFFFF !important;
+        border: 2px solid #CBD5E1 !important;
+        border-radius: 14px !important;
+        padding: 25px !important;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        margin-bottom: 25px !important;
+        margin-top: -20px !important;
+    }
+    
+    /* Main Title Styling */
     .main-title {
         font-size: 42px !important;
         font-weight: 800 !important;
-        color: #0F172A;
-        text-align: center;
-        margin-bottom: 5px;
-        letter-spacing: -0.5px;
+        color: #1E3A8A !important;
+        margin-bottom: 8px !important;
     }
-    /* Subtitle in sleek gray */
+    
+    /* Subtitle Styling */
     .sub-title {
-        font-size: 18px !important;
-        color: #64748B;
-        text-align: center;
-        margin-bottom: 35px;
+        font-size: 17px !important;
+        color: #475569 !important;
+        font-weight: 500;
+        margin: 0px !important;
     }
-    /* Button Custom Color (Modern Teal/Sky Blue) */
-    div.stButton > button:first-child {
-        background-color: #0EA5E9 !important;
-        color: white !important;
+
+    /* Target ONLY real visible containers, remove empty wrapper boxes */
+    div[data-testid="stBlock"] {
+        background-color: transparent !important;
         border: none !important;
-        font-weight: 600 !important;
-        padding: 10px 20px !important;
-        border-radius: 8px !important;
+        box-shadow: none !important;
+        padding: 0px !important;
+    }
+
+    /* Content Area white rounded background layout */
+    div.element-container:has(textarea), 
+    div.element-container:has(div.stButton), 
+    div[data-testid="stDataFrameContainer"],
+    div[data-testid="element-container"]:has(.stAlert),
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF !important;
+        border: 2px solid #CBD5E1 !important;
+        border-radius: 14px !important;
+        padding: 20px !important;
+        margin-bottom: 15px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* Radio button panel wrapper styling */
+    div[data-testid="stWidgetLabel"] + div {
+        background-color: #FFFFFF !important;
+        border: 2px solid #CBD5E1 !important;
+        border-radius: 14px !important;
+        padding: 15px 20px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Blue Button Design */
+    div.stButton > button:first-child {
+        background-color: #2563EB !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        font-weight: 700 !important;
+        padding: 12px 24px !important;
+        border-radius: 10px !important;
+        width: 100%;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
     }
     div.stButton > button:first-child:hover {
-        background-color: #0284C7 !important;
-        color: white !important;
+        background-color: #1D4ED8 !important;
     }
-    /* Tab active indicator decoration */
-    .stTabs [data-baseweb="tab"] {
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        color: #475569 !important;
+
+    /* Darker input fonts */
+    textarea {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border: 2px solid #94A3B8 !important;
+        border-radius: 10px !important;
     }
-    .stTabs [aria-selected="true"] {
-        color: #0EA5E9 !important;
+    
+    h3 {
+        color: #0F172A !important;
+        font-weight: 800 !important;
+        margin-top: 10px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Main Titles (Proper English)
-st.markdown('<div class="main-title">🛡️ SafeMail AI Dashboard</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Advanced Email Threat Detection & Text Analytics Powered by Machine Learning</div>', unsafe_allow_html=True)
+# --- COMBINED TITLE & SUBTITLE IN ONE BOX ---
+st.markdown("""
+    <div class="header-card">
+        <div class="main-title">🛡️ SafeMail AI Dashboard</div>
+        <div class="sub-title">Advanced Email Threat Detection & Text Analytics Powered by Machine Learning</div>
+    </div>
+""", unsafe_allow_html=True)
 
-# 3. Complete Real-World Local Dataset (No Internet Required)
 @st.cache_resource
 def load_full_dataset_and_train():
     comprehensive_data = {
-        'label': [
-            'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham',
-            'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham',
-            'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham'
-        ],
+        'label': ['spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam', 'ham'],
         'text': [
-            "Get free lottery worth 10000 dollars now! Click link", 
-            "Hey, are we still meeting for lunch today at the cafeteria?",
-            "Congratulations! You won a free iPhone. Claim your cash prize instantly", 
-            "Please review the attached project documentation and report by EOD.",
-            "URGENT! Your bank account has been suspended. Verify your login credentials now.", 
-            "Hi team, the project meeting is postponed to 4 PM tomorrow.",
-            "Win cash prize instantly click this link to secure your bonus", 
-            "Can you send me the quarterly financial report before the weekend?",
-            "Dear customer, your credit card security is compromised. Reset password here.",
-            "Thanks for the update. I will check the details and get back to you.",
-            "Double your income in one week! Work from home slots available now.",
-            "Are you free for a quick call regarding the software deployment?",
-            "EXCLUSIVE DEAL! Click to get 90% discount on premium electronics.",
-            "Let's schedule the interview for the new Python developer position.",
-            "Your subscription has expired. Renew now to avoid auto-debit penalties.",
-            "Can we review the marketing strategy slides during the morning standup?",
-            "Free entry token for casino. Play now and win millions tonight!",
-            "Kindly submit your expense receipts to the HR department by Friday.",
-            "You have been selected for a luxury holiday package. Call this number now.",
-            "The code has been pushed to the main branch. Please review the PR.",
-            "INVEST NOW! High return bitcoin investment opportunity guaranteed.",
-            "Just wanted to wish you a very happy birthday! Have a great day ahead.",
-            "Suspicious login attempt detected on your profile. Secure your account.",
-            "Could you please forward me the tracking number for the shipment?"
+            "Get free lottery worth 10000 dollars now! Click link", "Hey, are we still meeting for lunch today at the cafeteria?",
+            "Congratulations! You won a free iPhone. Claim your cash prize instantly", "Please review the attached project documentation and report by EOD.",
+            "URGENT! Your bank account has been suspended. Verify your login credentials now.", "Hi team, the project meeting is postponed to 4 PM tomorrow.",
+            "Win cash prize instantly click this link to secure your bonus", "Can you send me the quarterly financial report before the weekend?",
+            "Dear customer, your credit card security is compromised. Reset password here.", "Thanks for the update. I will check the details and get back to you.",
+            "Double your income in one week! Work from home slots available now.", "Are you free for a quick call regarding the software deployment?",
+            "EXCLUSIVE DEAL! Click to get 90% discount on premium electronics.", "Let's schedule the interview for the new Python developer position.",
+            "Your subscription has expired. Renew now to avoid auto-debit penalties.", "Can we review the marketing strategy slides during the morning standup?",
+            "Free entry token for casino. Play now and win millions tonight!", "Kindly submit your expense receipts to the HR department by Friday.",
+            "You have been selected for a luxury holiday package. Call this number now.", "The code has been pushed to the main branch. Please review the PR.",
+            "INVEST NOW! High return bitcoin investment opportunity guaranteed.", "Just wanted to wish you a very happy birthday! Have a great day ahead.",
+            "Suspicious login attempt detected on your profile. Secure your account.", "Could you please forward me the tracking number for the shipment?"
         ]
     }
-    
     df = pd.DataFrame(comprehensive_data)
-    
-    pipeline = Pipeline([
-        ('vectorizer', CountVectorizer(stop_words='english')), 
-        ('nb', MultinomialNB())
-    ])
+    pipeline = Pipeline([('vectorizer', CountVectorizer(stop_words='english')), ('nb', MultinomialNB())])
     pipeline.fit(df['text'], df['label'])
-    return pipeline, len(df)
+    return pipeline
 
-model, total_rows = load_full_dataset_and_train()
-st.sidebar.success(f"🛡️ SafeMail AI: Active & Fully Loaded!")
+model = load_full_dataset_and_train()
+st.sidebar.success("🛡️ SafeMail Core: Active")
 
-# Helper function: URL Safety Checker
 def check_urls(text):
-    urls = re.findall(r'(https?://\S+|www\.\S+|\b\w+\.(?:com|org|net|in|xyz)\b)', text)
+    urls = re.findall(r'(https?://\S+|www\.\S+|\\b\\w+\\.(?:com|org|net|in|xyz)\\b)', text)
     if not urls:
-        return "No Links Found", "✅ No links detected in this email."
-    
+        return "✅ No links detected in this email."
     suspicious_words = ['free', 'win', 'lottery', 'gift', 'login', 'verify', 'bank', 'cashback', 'secure']
     for url in urls:
         if any(word in url.lower() for word in suspicious_words):
-            return "Unsafe Links Detected", f"🚨 Warning: Suspicious link identified: `{url}`"
-    return "Safe Links", f"ℹ️ Links found (`{urls}`), but they appear to be safe."
+            return f"🚨 Warning: Suspicious link identified: `{url}`"
+    return f"ℹ️ Links found (`{urls}`), but they appear to be safe."
 
-# --- NAVIGATION TABS ---
-tab1, tab2 = st.tabs(["📧 Single Email Analyzer", "📊 Bulk CSV Classifier"])
+# Choose layout mode
+choice = st.radio("Select Analysis Mode:", ["📧 Single Email Analyzer", "📊 Bulk CSV Classifier"], horizontal=True)
 
-# --- TAB 1: SINGLE EMAIL ANALYZER ---
-with tab1:
-    left_col, right_col = st.columns([1.1, 0.9], gap="large")
+if choice == "📧 Single Email Analyzer":
+    st.markdown("### 🖋️ Paste Your Email Content")
+    user_input = st.text_area("Enter email text to analyze:", height=150, key="single_input", placeholder="Type or paste your email content here...")
+    analyze_btn = st.button("🔍 Run AI Diagnostics")
     
-    with left_col:
-        st.markdown("### 🖋️ Paste Your Email Content")
-        user_input = st.text_area("Enter email text to analyze:", height=180, key="single_input", placeholder="Type or paste your email content here...")
-        analyze_btn = st.button("🔍 Run AI Diagnostics", use_container_width=True)
-    
-    with right_col:
-        st.markdown("### 📊 AI Assessment & Analytics")
-        if analyze_btn:
-            if user_input.strip() != "":
-                # Prediction & Confidence (Fixed Logic)
-                prediction = model.predict([user_input])[0]
-                probabilities = model.predict_proba([user_input])[0]
-                
-                class_labels = list(model.classes_)
-                pred_index = class_labels.index(prediction)
-                confidence = probabilities[pred_index] * 100
-                
-                # Results Display
-                if prediction == 'spam':
-                    st.error("🚨 ASSESSMENT: SPAM DETECTED")
-                else:
-                    st.success("✅ ASSESSMENT: SAFE / LEGITIMATE")
-                
-                # Metrics
-                c1, c2 = st.columns(2)
-                with c1:
-                    st.metric(label="🤖 AI Confidence", value=f"{confidence:.2f}%")
-                with c2:
-                    word_count = len(user_input.split())
-                    st.metric("📝 Word Count", word_count)
-                
-                # URL Status Box
-                url_status, url_msg = check_urls(user_input)
-                st.info(f"🔗 **Link Safety:** {url_msg}")
-                
-                # Clean Minimalist Chart
-                chart_data = pd.DataFrame({
-                    'Metrics': ['Your Email', 'Avg Spam', 'Avg Safe'],
-                    'Words': [word_count, 15, 8]
-                })
-                fig = px.bar(chart_data, x='Metrics', y='Words', color='Metrics', 
-                             title="Length Benchmark Analysis", 
-                             template="plotly_white",
-                             color_discrete_sequence=['#0EA5E9', '#64748B', '#94A3B8'])
-                fig.update_layout(showlegend=False, height=220, margin=dict(t=30, b=0, l=0, r=0))
-                st.plotly_chart(fig, use_container_width=True)
+    if analyze_btn:
+        if user_input.strip() != "":
+            prediction = model.predict([user_input])[0]
+            probabilities = model.predict_proba([user_input])
+            
+            class_labels = list(model.classes_)
+            pred_index = class_labels.index(prediction)
+            confidence = probabilities[0][pred_index] * 100
+            
+            st.markdown("### 📊 AI Assessment Output")
+            if prediction == 'spam':
+                st.error("🚨 ASSESSMENT: SPAM DETECTED")
             else:
-                st.warning("Please enter some text before analyzing.")
+                st.success("✅ ASSESSMENT: SAFE / LEGITIMATE")
+            
+            st.metric(label="🤖 AI Confidence Score", value=f"{confidence:.2f}%")
+            st.info(f"🔗 **Link Safety Evaluation:** {check_urls(user_input)}")
         else:
-            st.info("👈 Enter email content on the left and click the button to see AI results.")
+            st.warning("⚠️ Please enter some email text before running diagnostics.")
 
-# --- TAB 2: BULK CSV CLASSIFIER ---
-with tab2:
-    st.markdown("### 🗂️ Batch Processing System")
-    st.write("Upload a CSV file containing multiple emails to process them all at once and download the report.")
-    
-    uploaded_file = st.file_uploader("Choose your .csv file (Column header must be 'text')", type=["csv"])
+else:
+    st.markdown("### 📁 Upload Emails in Bulk")
+    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     
     if uploaded_file is not None:
-        df_user = pd.read_csv(uploaded_file)
+        df_bulk = pd.read_csv(uploaded_file)
+        text_col = None
+        for col in ['text', 'email_text', 'email', 'body']:
+            if col in df_bulk.columns:
+                text_col = col
+                break
         
-        if 'text' in df_user.columns:
-            df_user['AI Prediction'] = model.predict(df_user['text'])
+        if text_col:
+            st.success(f"Found data column: `{text_col}`")
+            df_bulk['AI_Prediction'] = model.predict(df_bulk[text_col].astype(str))
+            counts = df_bulk['AI_Prediction'].value_counts()
             
-            b_col1, b_col2 = st.columns([1.2, 0.8], gap="medium")
+            st.dataframe(df_bulk, use_container_width=True)
             
-            with b_col1:
-                st.markdown("#### 📋 Processed Emails Preview")
-                st.dataframe(df_user, use_container_width=True, height=300)
-                
-                csv = df_user.to_csv(index=False).encode('utf-8')
-                st.download_button(label="📥 Download Complete Report (.CSV)", data=csv, file_name="ai_classified_report.csv", mime="text/csv", use_container_width=True)
+            fig_pie = px.pie(names=counts.index, values=counts.values, title="Bulk Scan Results Distribution", template="plotly_white", color=counts.index, color_discrete_map={'spam': '#EF4444', 'ham': '#10B981'})
+            st.plotly_chart(fig_pie, use_container_width=True)
             
-            with b_col2:
-                st.markdown("#### 📈 Threat Distribution")
-                summary = df_user['AI Prediction'].value_counts().reset_index()
-                summary.columns = ['Result', 'Count']
-                
-                # Fixed color map for chart consistency
-                fig_pie = px.pie(summary, values='Count', names='Result', hole=0.4,
-                                 color='Result',
-                                 color_discrete_map={'ham': '#10B981', 'spam': '#EF4444'})
-                fig_pie.update_layout(height=280, margin=dict(t=20, b=0, l=0, r=0))
+            csv_data = df_bulk.to_csv(index=False).encode('utf-8')
+            st.download_button(label="📥 Download Classified CSV", data=csv_data, file_name="safemail_ai_predictions.csv", mime="text/csv", use_container_width=True)
+        else:
+            st.error("Error: CSV must contain a column named 'text' or 'email_text'.")
